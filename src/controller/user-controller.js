@@ -56,4 +56,8 @@ const getProfile = asyncMiddleware(async (req, res) => {
   res.status(200).json(req.user);
 });
 
-export { Register, Login, getProfile };
+const redirect = asyncMiddleware(async (req, res) => {
+  res.json({ message: "Sunglasses API — see /api-docs for documentation" });
+});
+
+export { Register, Login, getProfile, redirect };

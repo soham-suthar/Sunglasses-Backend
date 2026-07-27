@@ -8,6 +8,7 @@ import adminRouter from "./src/router/admin/adminRouter.js";
 import errorMiddleware from "./src/middleware/error-middleware.js";
 import swaggerUi from "swagger-ui-express";
 import swaggerSpec from "./src/docs/swagger.js";
+import helmet from "helmet";
 
 import dns from "dns";
 dns.setServers(["8.8.8.8", "1.1.1.1"]);
@@ -15,6 +16,7 @@ dns.setServers(["8.8.8.8", "1.1.1.1"]);
 dotenv.config();
 
 const app = express();
+app.use(helmet());
 app.use(
   cors({
     origin: "*",

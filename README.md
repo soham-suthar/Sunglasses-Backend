@@ -1,14 +1,23 @@
 # 🕶️ Sunglasses E-Commerce Backend
 
-A production-inspired RESTful backend API for an E-Commerce Sunglasses Store built using **Node.js, Express.js, MongoDB, and JWT Authentication**.
+A production-inspired **RESTful E-Commerce Backend API** built with **Node.js, Express.js, MongoDB, and JWT Authentication** following the **MVC Architecture**.
 
-This project provides secure authentication, product management, shopping cart functionality, order management, invoice generation, and a complete admin panel with pagination, searching, filtering, sorting, and API documentation.
+This project provides secure authentication, role-based authorization, product management, shopping cart functionality, order management, invoice generation, a complete admin dashboard, and fully documented REST APIs using **Swagger (OpenAPI)**.
 
 ---
 
-## 🚀 Live Demo
+![Node.js](https://img.shields.io/badge/Node.js-20+-339933?logo=node.js&logoColor=white)
+![Express](https://img.shields.io/badge/Express.js-000000?logo=express&logoColor=white)
+![MongoDB](https://img.shields.io/badge/MongoDB-Atlas-47A248?logo=mongodb&logoColor=white)
+![JWT](https://img.shields.io/badge/Auth-JWT-orange)
+![Swagger](https://img.shields.io/badge/API-Swagger-85EA2D?logo=swagger)
+![License](https://img.shields.io/badge/License-Portfolio-blue)
 
-### API
+---
+
+# 🚀 Live Demo
+
+### REST API
 
 https://sungalsses-backend.onrender.com
 
@@ -18,9 +27,33 @@ https://sungalsses-backend.onrender.com/api-docs
 
 ---
 
-# Features
+# ✨ Highlights
 
-## Authentication
+- RESTful API Architecture
+- MVC Project Structure
+- JWT Authentication
+- Role-Based Authorization
+- Secure Password Hashing (bcrypt)
+- Runtime Validation using Zod
+- Swagger (OpenAPI) Documentation
+- Admin Dashboard
+- Shopping Cart System
+- Order Management
+- PDF Invoice Generation
+- Pagination
+- Searching
+- Filtering
+- Sorting
+- Helmet Security Headers
+- Rate Limiting
+- MongoDB Atlas Deployment
+- Render Deployment
+
+---
+
+# 📌 Features
+
+## 🔐 Authentication
 
 - User Registration
 - User Login
@@ -31,36 +64,36 @@ https://sungalsses-backend.onrender.com/api-docs
 
 ---
 
-## Products
+## 🛍 Products
 
-- View all products
-- Filter products by color
-- Retrieve available colors
-
----
-
-## Shopping Cart
-
-- Add product to cart
-- Update quantity
-- Remove product
-- Clear cart
-- Automatic stock validation
+- View Products
+- Filter Products by Color
+- Retrieve Available Colors
 
 ---
 
-## Orders
+## 🛒 Shopping Cart
+
+- Add Products
+- Update Quantity
+- Remove Products
+- Clear Cart
+- Automatic Stock Validation
+
+---
+
+## 📦 Orders
 
 - Checkout
-- View all orders
-- View specific order
-- Cancel order
-- Simulated payment
-- Invoice generation (PDF)
+- View Orders
+- View Specific Order
+- Cancel Orders
+- Simulated Payment Workflow
+- PDF Invoice Generation
 
 ---
 
-## Admin Panel
+## 👨‍💼 Admin Panel
 
 ### Dashboard
 
@@ -72,18 +105,18 @@ https://sungalsses-backend.onrender.com/api-docs
 
 ### User Management
 
-- List Users
+- View Users
 - Search Users
+- Update Users
+- Delete Users
 - Pagination
 - Sorting
-- Update User
-- Delete User
 
 ### Product Management
 
-- Add Product
-- Update Product
-- Delete Product
+- Add Products
+- Update Products
+- Delete Products
 - Search
 - Filter
 - Pagination
@@ -94,20 +127,20 @@ https://sungalsses-backend.onrender.com/api-docs
 - View Orders
 - Update Order Status
 - Search
-- Pagination
-- Sorting
 - Filter by Payment Status
 - Filter by Order Status
+- Pagination
+- Sorting
 
 ### Cart Management
 
-- View all carts
-- Search carts by user
-- View specific cart
+- View All Carts
+- Search by User
+- View Specific Cart
 
 ---
 
-# Tech Stack
+# 🛠 Tech Stack
 
 ## Backend
 
@@ -132,6 +165,11 @@ https://sungalsses-backend.onrender.com/api-docs
 
 - Swagger / OpenAPI
 
+## Security
+
+- Helmet
+- Express Rate Limit
+
 ## Deployment
 
 - Render
@@ -139,17 +177,23 @@ https://sungalsses-backend.onrender.com/api-docs
 
 ---
 
-# Folder Structure
+# 📂 Project Structure
 
 ```
 src
 │
 ├── config/
+│
 ├── controller/
 │   ├── admin/
 │   └── user/
 │
 ├── docs/
+│   ├── paths/
+│   ├── requestBodies/
+│   ├── responses/
+│   ├── schemas/
+│   └── reusable/
 │
 ├── middleware/
 │   ├── admin/
@@ -170,9 +214,9 @@ src
 
 ---
 
-# API Documentation
+# 📖 API Documentation
 
-Interactive API documentation is available through Swagger.
+Interactive Swagger documentation is available at:
 
 ```
 GET /api-docs
@@ -180,7 +224,85 @@ GET /api-docs
 
 ---
 
-# Installation
+# 📊 API Overview
+
+### Authentication
+
+```
+POST /api/register
+POST /api/login
+GET  /api/profile
+```
+
+### Products
+
+```
+GET /api/products
+GET /api/colors
+```
+
+### Shopping Cart
+
+```
+GET    /api/cart
+POST   /api/cart
+PATCH  /api/cart/:id
+DELETE /api/cart/:id
+DELETE /api/cart
+```
+
+### Orders
+
+```
+POST  /api/checkout
+GET   /api/order
+GET   /api/orders/:id
+PATCH /api/orders/:id/pay
+PATCH /api/orders/:id/cancel
+GET   /api/orders/:id/invoice
+```
+
+### Admin
+
+```
+GET    /api/admin/dashboard
+
+GET    /api/admin/users
+GET    /api/admin/users/:id
+PATCH  /api/admin/users/:id
+DELETE /api/admin/users/:id
+
+GET    /api/admin/products
+POST   /api/admin/products
+GET    /api/admin/products/:id
+PATCH  /api/admin/products/:id
+DELETE /api/admin/products/:id
+
+GET    /api/admin/orders
+GET    /api/admin/orders/:id
+PATCH  /api/admin/orders/:id/status
+
+GET    /api/admin/carts
+GET    /api/admin/carts/:id
+```
+
+---
+
+# 🔒 Security Features
+
+- JWT Authentication
+- Role-Based Authorization
+- Password Hashing using bcrypt
+- Runtime Request Validation using Zod
+- Helmet Security Headers
+- Login & Registration Rate Limiting
+- ObjectId Validation Middleware
+- Protected Routes
+- Centralized Error Handling
+
+---
+
+# ⚙ Installation
 
 Clone the repository
 
@@ -218,129 +340,44 @@ npm run dev
 
 ---
 
-# Environment Variables
+# 🌍 Environment Variables
 
-| Variable    | Description                     |
-| ----------- | ------------------------------- |
-| PORT        | Server Port                     |
-| MONGODB_URI | MongoDB Atlas Connection String |
-| JWT_SECRET  | Secret used for JWT             |
-
----
-
-# Example Endpoints
-
-## Authentication
-
-```
-POST /api/register
-
-POST /api/login
-
-GET /api/profile
-```
+| Variable    | Description                        |
+| ----------- | ---------------------------------- |
+| PORT        | Server Port                        |
+| MONGODB_URI | MongoDB Atlas Connection String    |
+| JWT_SECRET  | Secret Key used to sign JWT Tokens |
 
 ---
 
-## Products
+# 📈 Future Improvements
 
-```
-GET /api/products
-
-GET /api/colors
-```
-
----
-
-## Cart
-
-```
-GET /api/cart
-
-POST /api/cart
-
-PATCH /api/cart/:id
-
-DELETE /api/cart/:id
-
-DELETE /api/cart
-```
-
----
-
-## Orders
-
-```
-POST /api/checkout
-
-GET /api/order
-
-GET /api/orders/:id
-
-PATCH /api/orders/:id/pay
-
-PATCH /api/orders/:id/cancel
-
-GET /api/orders/:id/invoice
-```
-
----
-
-## Admin
-
-```
-GET /api/admin/dashboard
-
-GET /api/admin/users
-
-GET /api/admin/products
-
-GET /api/admin/orders
-
-GET /api/admin/carts
-```
-
----
-
-# Security Features
-
-- JWT Authentication
-- Role-Based Authorization
-- Password Hashing (bcrypt)
-- Input Validation (Zod)
-- Protected Routes
-- ObjectId Validation
-- Centralized Error Handling
-
----
-
-# Future Improvements
-
-- Razorpay Payment Integration
+- Razorpay / Stripe Integration
 - Email Verification
 - Forgot Password
 - Refresh Tokens
 - Product Reviews
 - Wishlist
-- Product Images Upload
-- Rate Limiting
+- Product Image Uploads
 - Docker Support
 - CI/CD Pipeline
+- Automated Testing (Jest + Supertest)
+- MongoDB Transactions for Checkout
 
 ---
 
-# Author
+# 👨‍💻 Author
 
 **Soham Suthar**
 
-GitHub:
+GitHub  
 https://github.com/soham-suthar
 
-LinkedIn:
+LinkedIn  
 https://www.linkedin.com/in/soham-suthar/
 
 ---
 
-# License
+# 📄 License
 
-This project is intended for educational and portfolio purposes.
+This project is intended for **educational and portfolio purposes**.
