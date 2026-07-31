@@ -8,6 +8,8 @@ const transporter = nodemailer.createTransport({
   port: 587,
   secure: false,
 
+  family: 4,
+
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
@@ -21,13 +23,15 @@ const transporter = nodemailer.createTransport({
 const sendEmail = async ({ to, subject, html }) => {
   console.log("EMAIL USER:", process.env.EMAIL_USER);
   console.log("Sending email to:", to);
+
   await transporter.sendMail({
     from: `"Sunglasses Store" <${process.env.EMAIL_USER}>`,
     to,
     subject,
     html,
   });
-  console.log("Email sent");
+
+  console.log("Email sent successfully");
 };
 
 export default sendEmail;
