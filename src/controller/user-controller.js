@@ -37,34 +37,41 @@ const Register = asyncMiddleware(async (req, res) => {
     emailVerificationExpires: Date.now() + 1000 * 60 * 10,
   });
 
-  const verificationURL = `${process.env.CLIENT_URL}/api/verify-email/${verificationToken}`;
+  try {
+    const verificationURL = `${process.env.CLIENT_URL}/api/verify-email/${verificationToken}`;
 
-  await sendEmail({
-    to: userCreated.email,
-    subject: "Verify your email",
+    await sendEmail({
+      to: userCreated.email,
+      subject: "Verify your email",
 
-    html: `
-      <h2>Welcome to Sunglasses Store!</h2>
+      html: `
+        <h2>Welcome to Sunglasses Store!</h2>
   
-      <p>Click the button below to verify your email.</p>
+        <p>Click the button below to verify your email.</p>
   
-      <a
-        href="${verificationURL}"
-        style="
-          background:#000;
-          color:#fff;
-          padding:12px 20px;
-          text-decoration:none;
-          border-radius:6px;
-          display:inline-block;
-        "
-      >
-        Verify Email
-      </a>
+        <a
+          href="${verificationURL}"
+          style="
+            background:#000;
+            color:#fff;
+            padding:12px 20px;
+            text-decoration:none;
+            border-radius:6px;
+            display:inline-block;
+          "
+        >
+          Verify Email
+        </a>
   
-      <p>This link expires in 10 minutes.</p>
-    `,
-  });
+        <p>This link expires in 10 minutes.</p>
+      `,
+    });
+  } catch (error) {
+    // Remove user if email fails
+    await User.findByIdAndDelete(userCreated._id);
+
+    throw error;
+  }
 
   return res.status(201).json({
     message:
@@ -173,7 +180,7 @@ const resendVerificationEmail = asyncMiddleware(async (req, res) => {
 
   await user.save();
 
-  const verificationURL = `http://localhost:3000/api/verify-email/${verificationToken}`;
+  const verificationURL = `${process.env.CLIENT_URL}/api/verify-email/${verificationToken}`;
 
   await sendEmail({
     to: user.email,
