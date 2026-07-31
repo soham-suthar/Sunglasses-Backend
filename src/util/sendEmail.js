@@ -12,8 +12,6 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-await transporter.verify();
-
 const sendEmail = async ({ to, subject, html }) => {
   await transporter.sendMail({
     from: `"Sunglasses Store" <${process.env.EMAIL_USER}>`,
