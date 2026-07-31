@@ -7,7 +7,16 @@ const AdminRequestBodies = {
         schema: {
           type: "object",
 
-          required: ["name", "price", "quantity", "color", "section", "src"],
+          required: [
+            "name",
+            "price",
+            "quantity",
+            "color",
+            "description",
+            "section",
+            "src",
+            "hoverSrc",
+          ],
 
           properties: {
             name: {

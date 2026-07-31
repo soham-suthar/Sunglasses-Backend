@@ -4,15 +4,17 @@
  *   post:
  *     tags:
  *       - Orders
- *     summary: Create a new order
+ *     summary: Checkout cart
  *     description: Creates a new order from the authenticated user's cart.
  *     security:
  *       - bearerAuth: []
- *     requestBody:
- *       $ref: "#/components/requestBodies/CheckoutRequest"
  *     responses:
  *       201:
  *         description: Order created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: "#/components/schemas/OrderCreatedResponse"
  *       400:
  *         $ref: "#/components/responses/BadRequest"
  *       401:
@@ -27,13 +29,19 @@
  *   get:
  *     tags:
  *       - Orders
- *     summary: Get all orders
+ *     summary: Get user's orders
  *     description: Returns all orders belonging to the authenticated user.
  *     security:
  *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: Orders retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: "#/components/schemas/Order"
  *       401:
  *         $ref: "#/components/responses/Unauthorized"
  *       500:
@@ -51,35 +59,19 @@
  *     security:
  *       - bearerAuth: []
  *     parameters:
- *       - $ref: "#/components/parameters/ObjectId"
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Order ID
  *     responses:
  *       200:
  *         description: Order retrieved successfully
- *       401:
- *         $ref: "#/components/responses/Unauthorized"
- *       404:
- *         $ref: "#/components/responses/NotFound"
- *       500:
- *         $ref: "#/components/responses/InternalServerError"
- */
-
-/**
- * @openapi
- * /api/orders/{id}/cancel:
- *   patch:
- *     tags:
- *       - Orders
- *     summary: Cancel an order
- *     description: Cancels an order if it has not yet been shipped or delivered.
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - $ref: "#/components/parameters/ObjectId"
- *     responses:
- *       200:
- *         description: Order cancelled successfully
- *       400:
- *         $ref: "#/components/responses/BadRequest"
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: "#/components/schemas/Order"
  *       401:
  *         $ref: "#/components/responses/Unauthorized"
  *       404:
@@ -94,17 +86,56 @@
  *   patch:
  *     tags:
  *       - Orders
- *     summary: Pay for an order
- *     description: Completes payment for an order and updates stock.
+ *     summary: Mark order as paid
+ *     description: Simulates successful payment for an order.
  *     security:
  *       - bearerAuth: []
  *     parameters:
- *       - $ref: "#/components/parameters/ObjectId"
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Order ID
  *     responses:
  *       200:
- *         description: Payment successful
- *       400:
- *         $ref: "#/components/responses/BadRequest"
+ *         description: Payment completed successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: "#/components/schemas/PaymentResponse"
+ *       401:
+ *         $ref: "#/components/responses/Unauthorized"
+ *       404:
+ *         $ref: "#/components/responses/NotFound"
+ *       500:
+ *         $ref: "#/components/responses/InternalServerError"
+ */
+
+/**
+ * @openapi
+ * /api/orders/{id}/cancel:
+ *   patch:
+ *     tags:
+ *       - Orders
+ *     summary: Cancel order
+ *     description: Cancels an existing order.
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Order ID
+ *     responses:
+ *       200:
+ *         description: Order cancelled successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: "#/components/schemas/CancelOrderResponse"
  *       401:
  *         $ref: "#/components/responses/Unauthorized"
  *       404:
@@ -118,16 +149,26 @@
  * /api/orders/{id}/invoice:
  *   get:
  *     tags:
- *       - Invoices
+ *       - Orders
  *     summary: Download invoice
- *     description: Generates and downloads the invoice for an order.
+ *     description: Downloads the PDF invoice for an order.
  *     security:
  *       - bearerAuth: []
  *     parameters:
- *       - $ref: "#/components/parameters/ObjectId"
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Order ID
  *     responses:
  *       200:
- *         description: Invoice generated successfully
+ *         description: PDF invoice
+ *         content:
+ *           application/pdf:
+ *             schema:
+ *               type: string
+ *               format: binary
  *       401:
  *         $ref: "#/components/responses/Unauthorized"
  *       404:

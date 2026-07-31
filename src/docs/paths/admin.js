@@ -5,7 +5,7 @@
  *     tags:
  *       - Admin
  *     summary: Get dashboard statistics
- *     description: Returns overall statistics including users, products, orders, revenue and order status counts.
+ *     description: Returns platform statistics including users, products, orders, revenue and order status counts.
  *     security:
  *       - bearerAuth: []
  *     responses:
@@ -33,14 +33,19 @@
  *                   properties:
  *                     placed:
  *                       type: integer
+ *                       example: 45
  *                     processing:
  *                       type: integer
+ *                       example: 20
  *                     shipped:
  *                       type: integer
+ *                       example: 18
  *                     delivered:
  *                       type: integer
+ *                       example: 210
  *                     cancelled:
  *                       type: integer
+ *                       example: 27
  *       401:
  *         $ref: "#/components/responses/Unauthorized"
  *       403:
@@ -116,6 +121,8 @@
  *         $ref: "#/components/responses/Forbidden"
  *       404:
  *         $ref: "#/components/responses/NotFound"
+ *       500:
+ *         $ref: "#/components/responses/InternalServerError"
  *
  *   patch:
  *     tags:
@@ -148,6 +155,8 @@
  *         $ref: "#/components/responses/Forbidden"
  *       404:
  *         $ref: "#/components/responses/NotFound"
+ *       500:
+ *         $ref: "#/components/responses/InternalServerError"
  *
  *   delete:
  *     tags:
@@ -160,6 +169,14 @@
  *     responses:
  *       200:
  *         description: User deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: User deleted successfully
  *       400:
  *         $ref: "#/components/responses/BadRequest"
  *       401:
@@ -168,6 +185,8 @@
  *         $ref: "#/components/responses/Forbidden"
  *       404:
  *         $ref: "#/components/responses/NotFound"
+ *       500:
+ *         $ref: "#/components/responses/InternalServerError"
  */
 
 /**
@@ -177,6 +196,7 @@
  *     tags:
  *       - Admin
  *     summary: Get all products
+ *     description: Returns a paginated list of products with optional searching, filtering and sorting.
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -200,11 +220,18 @@
  *                     $ref: "#/components/schemas/Product"
  *                 pagination:
  *                   $ref: "#/components/schemas/Pagination"
+ *       401:
+ *         $ref: "#/components/responses/Unauthorized"
+ *       403:
+ *         $ref: "#/components/responses/Forbidden"
+ *       500:
+ *         $ref: "#/components/responses/InternalServerError"
  *
  *   post:
  *     tags:
  *       - Admin
- *     summary: Add a product
+ *     summary: Add a new product
+ *     description: Creates a new product.
  *     security:
  *       - bearerAuth: []
  *     requestBody:
@@ -219,8 +246,19 @@
  *               properties:
  *                 message:
  *                   type: string
+ *                   example: Product added successfully
  *                 newProduct:
  *                   $ref: "#/components/schemas/Product"
+ *       400:
+ *         $ref: "#/components/responses/BadRequest"
+ *       401:
+ *         $ref: "#/components/responses/Unauthorized"
+ *       403:
+ *         $ref: "#/components/responses/Forbidden"
+ *       409:
+ *         $ref: "#/components/responses/Conflict"
+ *       500:
+ *         $ref: "#/components/responses/InternalServerError"
  */
 
 /**
@@ -229,7 +267,7 @@
  *   get:
  *     tags:
  *       - Admin
- *     summary: Get product
+ *     summary: Get a specific product
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -244,11 +282,19 @@
  *               properties:
  *                 product:
  *                   $ref: "#/components/schemas/Product"
+ *       401:
+ *         $ref: "#/components/responses/Unauthorized"
+ *       403:
+ *         $ref: "#/components/responses/Forbidden"
+ *       404:
+ *         $ref: "#/components/responses/NotFound"
+ *       500:
+ *         $ref: "#/components/responses/InternalServerError"
  *
  *   patch:
  *     tags:
  *       - Admin
- *     summary: Update product
+ *     summary: Update a product
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -265,13 +311,26 @@
  *               properties:
  *                 message:
  *                   type: string
+ *                   example: Product updated successfully
  *                 product:
  *                   $ref: "#/components/schemas/Product"
+ *       400:
+ *         $ref: "#/components/responses/BadRequest"
+ *       401:
+ *         $ref: "#/components/responses/Unauthorized"
+ *       403:
+ *         $ref: "#/components/responses/Forbidden"
+ *       404:
+ *         $ref: "#/components/responses/NotFound"
+ *       409:
+ *         $ref: "#/components/responses/Conflict"
+ *       500:
+ *         $ref: "#/components/responses/InternalServerError"
  *
  *   delete:
  *     tags:
  *       - Admin
- *     summary: Delete product
+ *     summary: Delete a product
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -279,6 +338,22 @@
  *     responses:
  *       200:
  *         description: Product deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Product deleted successfully
+ *       401:
+ *         $ref: "#/components/responses/Unauthorized"
+ *       403:
+ *         $ref: "#/components/responses/Forbidden"
+ *       404:
+ *         $ref: "#/components/responses/NotFound"
+ *       500:
+ *         $ref: "#/components/responses/InternalServerError"
  */
 
 /**
@@ -288,6 +363,7 @@
  *     tags:
  *       - Admin
  *     summary: Get all orders
+ *     description: Returns a paginated list of orders with searching, filtering and sorting.
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -311,6 +387,14 @@
  *                     $ref: "#/components/schemas/Order"
  *                 pagination:
  *                   $ref: "#/components/schemas/Pagination"
+ *       400:
+ *         $ref: "#/components/responses/BadRequest"
+ *       401:
+ *         $ref: "#/components/responses/Unauthorized"
+ *       403:
+ *         $ref: "#/components/responses/Forbidden"
+ *       500:
+ *         $ref: "#/components/responses/InternalServerError"
  */
 
 /**
@@ -319,7 +403,7 @@
  *   get:
  *     tags:
  *       - Admin
- *     summary: Get order
+ *     summary: Get a specific order
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -334,6 +418,14 @@
  *               properties:
  *                 order:
  *                   $ref: "#/components/schemas/Order"
+ *       401:
+ *         $ref: "#/components/responses/Unauthorized"
+ *       403:
+ *         $ref: "#/components/responses/Forbidden"
+ *       404:
+ *         $ref: "#/components/responses/NotFound"
+ *       500:
+ *         $ref: "#/components/responses/InternalServerError"
  */
 
 /**
@@ -343,6 +435,7 @@
  *     tags:
  *       - Admin
  *     summary: Update order status
+ *     description: Updates the status of an order.
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -351,7 +444,7 @@
  *       $ref: "#/components/requestBodies/UpdateOrderStatusRequest"
  *     responses:
  *       200:
- *         description: Status updated successfully
+ *         description: Order status updated successfully
  *         content:
  *           application/json:
  *             schema:
@@ -359,8 +452,21 @@
  *               properties:
  *                 message:
  *                   type: string
+ *                   example: Status changed successfully
  *                 order:
  *                   $ref: "#/components/schemas/Order"
+ *       400:
+ *         $ref: "#/components/responses/BadRequest"
+ *       401:
+ *         $ref: "#/components/responses/Unauthorized"
+ *       403:
+ *         $ref: "#/components/responses/Forbidden"
+ *       404:
+ *         $ref: "#/components/responses/NotFound"
+ *       409:
+ *         $ref: "#/components/responses/Conflict"
+ *       500:
+ *         $ref: "#/components/responses/InternalServerError"
  */
 
 /**
@@ -370,6 +476,7 @@
  *     tags:
  *       - Admin
  *     summary: Get all carts
+ *     description: Returns a paginated list of user carts. Supports searching by user name or email.
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -390,6 +497,12 @@
  *                     $ref: "#/components/schemas/Cart"
  *                 pagination:
  *                   $ref: "#/components/schemas/Pagination"
+ *       401:
+ *         $ref: "#/components/responses/Unauthorized"
+ *       403:
+ *         $ref: "#/components/responses/Forbidden"
+ *       500:
+ *         $ref: "#/components/responses/InternalServerError"
  */
 
 /**
@@ -398,7 +511,8 @@
  *   get:
  *     tags:
  *       - Admin
- *     summary: Get cart
+ *     summary: Get a specific cart
+ *     description: Returns complete details of a user's cart.
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -413,4 +527,12 @@
  *               properties:
  *                 cart:
  *                   $ref: "#/components/schemas/Cart"
+ *       401:
+ *         $ref: "#/components/responses/Unauthorized"
+ *       403:
+ *         $ref: "#/components/responses/Forbidden"
+ *       404:
+ *         $ref: "#/components/responses/NotFound"
+ *       500:
+ *         $ref: "#/components/responses/InternalServerError"
  */

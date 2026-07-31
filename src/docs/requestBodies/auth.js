@@ -1,30 +1,32 @@
 const AuthRequestBodies = {
   RegisterRequest: {
     required: true,
-
     content: {
       "application/json": {
         schema: {
           type: "object",
-
-          required: ["name", "email", "password"],
-
+          required: ["name", "email", "password", "phone"],
           properties: {
             name: {
               type: "string",
-              example: "name",
+              minLength: 6,
+              example: "John Doe",
             },
-
             email: {
               type: "string",
               format: "email",
-              example: "yourname@gmail.com",
+              example: "john@example.com",
             },
-
             password: {
               type: "string",
-              format: "password",
-              example: "Password@123",
+              minLength: 7,
+              example: "Password123",
+            },
+            phone: {
+              type: "string",
+              minLength: 10,
+              maxLength: 10,
+              example: "9876543210",
             },
           },
         },
@@ -34,25 +36,20 @@ const AuthRequestBodies = {
 
   LoginRequest: {
     required: true,
-
     content: {
       "application/json": {
         schema: {
           type: "object",
-
           required: ["email", "password"],
-
           properties: {
             email: {
               type: "string",
               format: "email",
-              example: "yourname@gmail.com",
+              example: "john@example.com",
             },
-
             password: {
               type: "string",
-              format: "password",
-              example: "Password@123",
+              example: "Password123",
             },
           },
         },

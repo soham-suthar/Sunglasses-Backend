@@ -1,36 +1,11 @@
-import connectDB from "./src/config/db.js";
 import dotenv from "dotenv";
-import express from "express";
-import userRouter from "./src/router/userRouter.js";
-import cors from "cors";
-import path from "path";
-import adminRouter from "./src/router/admin/adminRouter.js";
-import errorMiddleware from "./src/middleware/error-middleware.js";
-import swaggerUi from "swagger-ui-express";
-import swaggerSpec from "./src/docs/swagger.js";
-import helmet from "helmet";
-
 import dns from "dns";
 dns.setServers(["8.8.8.8", "1.1.1.1"]);
 
+import connectDB from "./src/config/db.js";
+import app from "./app.js";
+
 dotenv.config();
-
-const app = express();
-app.use(helmet());
-app.use(
-  cors({
-    origin: "*",
-  }),
-);
-app.use(express.json());
-const joinPublic = path.join(import.meta.dirname, "./public/");
-app.use("/public", express.static(joinPublic));
-
-app.use("/", userRouter);
-app.use("/api/admin", adminRouter);
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-
-app.use(errorMiddleware);
 
 const PORT = process.env.PORT || 3000;
 

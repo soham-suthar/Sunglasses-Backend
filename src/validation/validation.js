@@ -80,7 +80,11 @@ const updateProductSchema = z.object({
 });
 
 const checkoutSchema = z.object({
-  paymentStatus: z.enum(["COD", "UPI", "Card", "Net Banking"]),
+  paymentMethod: z.enum(["COD", "UPI", "Card", "Net Banking"]),
+});
+
+const resendVerificationSchema = z.object({
+  email: z.string().trim().email("Please enter a valid email address"),
 });
 
 export {
@@ -89,4 +93,5 @@ export {
   addProductSchema,
   updateProductSchema,
   checkoutSchema,
+  resendVerificationSchema,
 };

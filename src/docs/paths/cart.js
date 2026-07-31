@@ -3,16 +3,18 @@
  * /api/cart:
  *   get:
  *     tags:
- *       - Cart
+ *       - Shopping Cart
  *     summary: Get authenticated user's cart
- *     description: Returns all products currently in the authenticated user's cart along with total items and total price.
+ *     description: Returns the authenticated user's shopping cart.
  *     security:
  *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: Cart retrieved successfully
- *       400:
- *         $ref: "#/components/responses/BadRequest"
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: "#/components/schemas/Cart"
  *       401:
  *         $ref: "#/components/responses/Unauthorized"
  *       500:
@@ -24,7 +26,7 @@
  * /api/cart:
  *   post:
  *     tags:
- *       - Cart
+ *       - Shopping Cart
  *     summary: Add product to cart
  *     description: Adds a product to the authenticated user's cart.
  *     security:
@@ -33,7 +35,11 @@
  *       $ref: "#/components/requestBodies/AddToCartRequest"
  *     responses:
  *       200:
- *         description: Product added to cart successfully
+ *         description: Product added successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: "#/components/schemas/AddToCartResponse"
  *       400:
  *         $ref: "#/components/responses/BadRequest"
  *       401:
@@ -49,18 +55,20 @@
  * /api/cart:
  *   delete:
  *     tags:
- *       - Cart
+ *       - Shopping Cart
  *     summary: Clear cart
- *     description: Removes all products from the authenticated user's cart.
+ *     description: Removes every item from the authenticated user's cart.
  *     security:
  *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: Cart cleared successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: "#/components/schemas/ClearCartResponse"
  *       401:
  *         $ref: "#/components/responses/Unauthorized"
- *       404:
- *         $ref: "#/components/responses/NotFound"
  *       500:
  *         $ref: "#/components/responses/InternalServerError"
  */
@@ -70,18 +78,27 @@
  * /api/cart/{id}:
  *   patch:
  *     tags:
- *       - Cart
+ *       - Shopping Cart
  *     summary: Update cart item quantity
- *     description: Updates the quantity of a specific product in the authenticated user's cart.
+ *     description: Updates the quantity of a product already present in the authenticated user's cart.
  *     security:
  *       - bearerAuth: []
  *     parameters:
- *       - $ref: "#/components/parameters/ObjectId"
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: Product ID
+ *         schema:
+ *           type: string
  *     requestBody:
  *       $ref: "#/components/requestBodies/UpdateCartRequest"
  *     responses:
  *       200:
  *         description: Cart updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: "#/components/schemas/UpdateCartResponse"
  *       400:
  *         $ref: "#/components/responses/BadRequest"
  *       401:
@@ -97,16 +114,25 @@
  * /api/cart/{id}:
  *   delete:
  *     tags:
- *       - Cart
+ *       - Shopping Cart
  *     summary: Remove product from cart
- *     description: Removes a specific product from the authenticated user's cart.
+ *     description: Removes a single product from the authenticated user's cart.
  *     security:
  *       - bearerAuth: []
  *     parameters:
- *       - $ref: "#/components/parameters/ObjectId"
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: Product ID
+ *         schema:
+ *           type: string
  *     responses:
  *       200:
- *         description: Product removed from cart successfully
+ *         description: Product removed successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: "#/components/schemas/DeleteCartItemResponse"
  *       401:
  *         $ref: "#/components/responses/Unauthorized"
  *       404:
