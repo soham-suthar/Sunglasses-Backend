@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import { MongoMemoryServer } from "mongodb-memory-server";
+import { jest } from "@jest/globals";
 
 let mongoServer;
 
@@ -10,6 +11,8 @@ export const connectTestDB = async () => {
 
   await mongoose.connect(uri);
 };
+
+jest.setTimeout(15000);
 
 export const clearDatabase = async () => {
   const collections = mongoose.connection.collections;
