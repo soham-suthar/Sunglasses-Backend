@@ -1,4 +1,4 @@
-import brevo from "@getbrevo/brevo";
+import * as brevo from "@getbrevo/brevo";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -30,11 +30,11 @@ const sendEmail = async ({ to, subject, html }) => {
   try {
     const response = await apiInstance.sendTransacEmail(email);
 
-    console.log("Email sent successfully:", response.messageId);
+    console.log("Email sent successfully:", response);
 
     return response;
   } catch (error) {
-    console.error("Brevo email error:", error.response?.body || error.message);
+    console.error("Brevo error:", error.response?.body || error.message);
 
     throw error;
   }
