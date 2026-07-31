@@ -13,12 +13,15 @@ const transporter = nodemailer.createTransport({
 });
 
 const sendEmail = async ({ to, subject, html }) => {
+  console.log("EMAIL USER:", process.env.EMAIL_USER);
+  console.log("Sending email to:", to);
   await transporter.sendMail({
     from: `"Sunglasses Store" <${process.env.EMAIL_USER}>`,
     to,
     subject,
     html,
   });
+  console.log("Email sent");
 };
 
 export default sendEmail;
