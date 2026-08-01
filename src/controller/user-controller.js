@@ -1,13 +1,19 @@
 import User from "../models/user-model.js";
 import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 import asyncMiddleware from "../middleware/asyncMiddleware.js";
 import crypto from "crypto";
 import sendEmail from "../util/sendEmail.js";
 
+const COOKIE_OPTIONS = {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === "production",
+  sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+  maxAge: 7 * 24 * 60 * 60 * 1000,
+};
+
 const Register = asyncMiddleware(async (req, res) => {
   const { name, password, email } = req.body;
-
-  // Email Verification
 
   const verificationToken = crypto.randomBytes(32).toString("hex");
 
@@ -15,8 +21,6 @@ const Register = asyncMiddleware(async (req, res) => {
     .createHash("sha256")
     .update(verificationToken)
     .digest("hex");
-
-  // Verification Done
 
   const UserExist = await User.findOne({ email: email.toLowerCase() });
 
@@ -43,13 +47,10 @@ const Register = asyncMiddleware(async (req, res) => {
     await sendEmail({
       to: userCreated.email,
       subject: "Verify your email",
-
       html: `
         <h2>Welcome to Sunglasses Store!</h2>
-  
         <p>Click the button below to verify your email.</p>
-  
-        <a
+        
           href="${verificationURL}"
           style="
             background:#000;
@@ -62,14 +63,11 @@ const Register = asyncMiddleware(async (req, res) => {
         >
           Verify Email
         </a>
-  
         <p>This link expires in 10 minutes.</p>
       `,
     });
   } catch (error) {
-    // Remove user if email fails
     await User.findByIdAndDelete(userCreated._id);
-
     throw error;
   }
 
@@ -104,16 +102,16 @@ const Login = asyncMiddleware(async (req, res) => {
     });
   }
 
-  // Skip email verification during automated tests
-  if (!UserExist.isVerified && process.env.NODE_ENV !== "test") {
-    return res.status(403).json({
-      message: "Please verify your email before logging in.",
-    });
-  }
+  const accessToken = UserExist.generateAccessToken();
+  const newRefreshToken = UserExist.generateRefreshToken();
+  await UserExist.setRefreshToken(newRefreshToken);
+  console.log("Token generated");
+
+  res.cookie("refreshToken", newRefreshToken, COOKIE_OPTIONS);
 
   return res.status(200).json({
     message: "Login Successful",
-    token: await UserExist.generateToken(),
+    token: accessToken,
     userId: UserExist._id,
     name: UserExist.name,
   });
@@ -198,6 +196,53 @@ const resendVerificationEmail = asyncMiddleware(async (req, res) => {
   });
 });
 
+const refreshToken = asyncMiddleware(async (req, res) => {
+  const token = req.cookies?.refreshToken;
+
+  if (!token) {
+    return res.status(401).json({ message: "Refresh token missing" });
+  }
+
+  let decoded;
+  try {
+    decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET_KEY);
+  } catch {
+    return res
+      .status(401)
+      .json({ message: "Invalid or expired refresh token" });
+  }
+
+  const user = await User.findById(decoded.userId);
+
+  if (!user || !(await user.compareRefreshToken(token))) {
+    return res.status(401).json({ message: "Invalid refresh token" });
+  }
+
+  const newAccessToken = user.generateAccessToken();
+  const newRefreshToken = user.generateRefreshToken();
+  await user.setRefreshToken(newRefreshToken);
+
+  res.cookie("refreshToken", newRefreshToken, COOKIE_OPTIONS);
+
+  return res.status(200).json({ token: newAccessToken });
+});
+
+const logout = asyncMiddleware(async (req, res) => {
+  const token = req.cookies?.refreshToken;
+
+  if (token) {
+    try {
+      const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET_KEY);
+      await User.findByIdAndUpdate(decoded.userId, { refreshTokenHash: null });
+    } catch {
+      // token already invalid/expired — nothing to clean up
+    }
+  }
+
+  res.clearCookie("refreshToken", COOKIE_OPTIONS);
+  return res.status(200).json({ message: "Logged out successfully" });
+});
+
 const redirect = asyncMiddleware(async (req, res) => {
   res.json({ message: "Sunglasses API — see /api-docs for documentation" });
 });
@@ -209,4 +254,6 @@ export {
   redirect,
   verifyEmail,
   resendVerificationEmail,
+  refreshToken,
+  logout,
 };

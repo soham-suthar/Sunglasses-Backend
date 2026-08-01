@@ -2,6 +2,7 @@ import dotenv from "dotenv";
 import express from "express";
 import cors from "cors";
 import helmet from "helmet";
+import cookieParser from "cookie-parser";
 import path from "path";
 import swaggerUi from "swagger-ui-express";
 
@@ -26,11 +27,14 @@ app.use(
 
 app.use(
   cors({
-    origin: "*",
+    origin: process.env.CLIENT_URL,
+    credentials: true,
   }),
 );
 
 app.use(express.json());
+app.use(cookieParser());
+
 const joinPublic = path.join(import.meta.dirname, "./public/");
 app.use("/public", express.static(joinPublic));
 

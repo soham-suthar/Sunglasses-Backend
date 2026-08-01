@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import jwt from "jsonwebtoken";
+import bcrypt from "bcrypt";
 
 const UserSchema = new mongoose.Schema(
   {
@@ -40,30 +41,53 @@ const UserSchema = new mongoose.Schema(
     emailVerificationExpires: {
       type: Date,
     },
+
+    refreshTokenHash: {
+      type: String,
+      default: null,
+    },
   },
   {
     timestamps: true,
   },
 );
 
-UserSchema.methods.generateToken = function () {
-  try {
-    return jwt.sign(
-      {
-        userId: this._id,
-        email: this.email,
-        role: this.role,
-      },
-      process.env.JWT_SECRET_KEY,
-      {
-        expiresIn: "30d",
-      },
-    );
-  } catch (error) {
-    console.error(error);
-  }
+UserSchema.methods.generateAccessToken = function () {
+  return jwt.sign(
+    {
+      userId: this._id,
+      email: this.email,
+      role: this.role,
+    },
+    process.env.JWT_SECRET_KEY,
+    {
+      expiresIn: process.env.ACCESS_TOKEN_EXPIRY || "15m",
+    },
+  );
 };
 
-const User = new mongoose.model("User", UserSchema);
+UserSchema.methods.generateRefreshToken = function () {
+  return jwt.sign(
+    {
+      userId: this._id,
+    },
+    process.env.JWT_REFRESH_SECRET_KEY,
+    {
+      expiresIn: process.env.REFRESH_TOKEN_EXPIRY || "7d",
+    },
+  );
+};
+
+UserSchema.methods.setRefreshToken = async function (token) {
+  this.refreshTokenHash = await bcrypt.hash(token, 10);
+  await this.save();
+};
+
+UserSchema.methods.compareRefreshToken = async function (token) {
+  if (!this.refreshTokenHash) return false;
+  return bcrypt.compare(token, this.refreshTokenHash);
+};
+
+const User = mongoose.model("User", UserSchema);
 
 export default User;

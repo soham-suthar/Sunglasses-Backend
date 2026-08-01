@@ -2,7 +2,7 @@
 
 A production-inspired **RESTful E-Commerce Backend API** built with **Node.js, Express.js, MongoDB, and JWT Authentication** following the **MVC Architecture**.
 
-This project provides secure authentication, role-based authorization, product management, shopping cart functionality, order management, invoice generation, a complete admin dashboard, and fully documented REST APIs using **Swagger (OpenAPI)**.
+This project provides secure authentication with email verification, role-based authorization, product management, shopping cart functionality, order management, invoice generation, a complete admin dashboard, and fully documented REST APIs using **Swagger (OpenAPI)** — backed by an automated Jest/Supertest test suite.
 
 ---
 
@@ -11,11 +11,12 @@ This project provides secure authentication, role-based authorization, product m
 ![MongoDB](https://img.shields.io/badge/MongoDB-Atlas-47A248?logo=mongodb&logoColor=white)
 ![JWT](https://img.shields.io/badge/Auth-JWT-orange)
 ![Swagger](https://img.shields.io/badge/API-Swagger-85EA2D?logo=swagger)
+![Jest](https://img.shields.io/badge/Tested_with-Jest-C21325?logo=jest&logoColor=white)
 ![License](https://img.shields.io/badge/License-Portfolio-blue)
 
 ---
 
-# 🚀 Live Demo
+## 🚀 Live Demo
 
 ### REST API
 
@@ -25,165 +26,96 @@ https://sungalsses-backend.onrender.com
 
 https://sungalsses-backend.onrender.com/api-docs
 
----
-
-# ✨ Highlights
-
-- RESTful API Architecture
-- MVC Project Structure
-- JWT Authentication
-- Role-Based Authorization
-- Secure Password Hashing (bcrypt)
-- Runtime Validation using Zod
-- Swagger (OpenAPI) Documentation
-- Admin Dashboard
-- Shopping Cart System
-- Order Management
-- PDF Invoice Generation
-- Pagination
-- Searching
-- Filtering
-- Sorting
-- Helmet Security Headers
-- Rate Limiting
-- MongoDB Atlas Deployment
-- Render Deployment
+> ⚠️ Hosted on Render's free tier — the first request after inactivity may take 30–50s while the instance spins back up.
 
 ---
 
-# 📌 Features
+## ✨ Highlights
 
-## 🔐 Authentication
-
-- User Registration
-- User Login
-- JWT Authentication
-- Protected Routes
-- Role-Based Authorization (User/Admin)
-- Password Hashing using bcrypt
-
----
-
-## 🛍 Products
-
-- View Products
-- Filter Products by Color
-- Retrieve Available Colors
+- RESTful API architecture with MVC project structure
+- JWT authentication with **email verification required before login**
+- Role-based authorization (User / Admin)
+- Secure password hashing (bcrypt)
+- Runtime request validation using Zod
+- Rate limiting on authentication endpoints (register/login)
+- Helmet security headers
+- Swagger (OpenAPI) documentation, live and interactive
+- Admin dashboard with aggregation-based analytics
+- Shopping cart system with stock validation
+- Order management with PDF invoice generation
+- Pagination, searching, filtering, and sorting across all admin resources
+- Automated test suite (Jest + Supertest + in-memory MongoDB) — all tests passing
+- Deployed on Render with MongoDB Atlas
 
 ---
 
-## 🛒 Shopping Cart
+## 📌 Features
 
-- Add Products
-- Update Quantity
-- Remove Products
-- Clear Cart
-- Automatic Stock Validation
+### 🔐 Authentication & Email Verification
 
----
+- User registration (email verification required before first login)
+- Email verification via a tokenized link (sent through Brevo)
+- Resend verification email endpoint
+- JWT-based login, issued only after verification
+- Protected routes via JWT middleware
+- Role-based authorization (User/Admin)
+- Password hashing with bcrypt
+- Rate limiting on register/login (100 requests / 15 min window)
 
-## 📦 Orders
+### 🛍 Products
+
+- View all products
+- Filter products by color
+- Retrieve available colors
+
+### 🛒 Shopping Cart
+
+- Add product to cart
+- Update quantity
+- Remove product
+- Clear cart
+- Automatic stock validation
+
+### 📦 Orders
 
 - Checkout
-- View Orders
-- View Specific Order
-- Cancel Orders
-- Simulated Payment Workflow
-- PDF Invoice Generation
+- View all orders / a specific order
+- Cancel order
+- Simulated payment
+- PDF invoice generation
+
+### 👨‍💼 Admin Panel
+
+**Dashboard** — total users, products, orders, revenue, order status breakdown (via MongoDB aggregation)
+**User management** — list, search, update, delete (with safeguards against removing the last admin or self-demotion)
+**Product management** — full CRUD, search, filter, pagination, sorting
+**Order management** — view, update status, filter by payment/order status, pagination, sorting
+**Cart management** — view all carts, search by user, view a specific cart
 
 ---
 
-## 👨‍💼 Admin Panel
+## 🛠 Tech Stack
 
-### Dashboard
-
-- Total Users
-- Total Products
-- Total Orders
-- Total Revenue
-- Order Status Statistics
-
-### User Management
-
-- View Users
-- Search Users
-- Update Users
-- Delete Users
-- Pagination
-- Sorting
-
-### Product Management
-
-- Add Products
-- Update Products
-- Delete Products
-- Search
-- Filter
-- Pagination
-- Sorting
-
-### Order Management
-
-- View Orders
-- Update Order Status
-- Search
-- Filter by Payment Status
-- Filter by Order Status
-- Pagination
-- Sorting
-
-### Cart Management
-
-- View All Carts
-- Search by User
-- View Specific Cart
+| Category       | Technologies                           |
+| -------------- | -------------------------------------- |
+| Backend        | Node.js, Express.js                    |
+| Database       | MongoDB, Mongoose                      |
+| Authentication | JWT, bcrypt                            |
+| Validation     | Zod                                    |
+| Email          | Brevo (transactional email API)        |
+| Security       | Helmet, express-rate-limit             |
+| Documentation  | Swagger / OpenAPI                      |
+| Testing        | Jest, Supertest, mongodb-memory-server |
+| Deployment     | Render, MongoDB Atlas                  |
 
 ---
 
-# 🛠 Tech Stack
-
-## Backend
-
-- Node.js
-- Express.js
-
-## Database
-
-- MongoDB
-- Mongoose
-
-## Authentication
-
-- JWT
-- bcrypt
-
-## Validation
-
-- Zod
-
-## Documentation
-
-- Swagger / OpenAPI
-
-## Security
-
-- Helmet
-- Express Rate Limit
-
-## Deployment
-
-- Render
-- MongoDB Atlas
-
----
-
-# 📂 Project Structure
+## 📂 Project Structure
 
 ```
 src
 │
 ├── config/
-│
 ├── controller/
 │   ├── admin/
 │   └── user/
@@ -197,26 +129,30 @@ src
 │
 ├── middleware/
 │   ├── admin/
-│   └── validation/
+│   ├── validation/
+│   └── rate-limiting.js
 │
 ├── models/
-│
 ├── router/
 │   ├── admin/
 │   └── user/
 │
 ├── util/
-│
 ├── validation/
 │
-└── server.js
+tests/
+│   ├── setup.js
+│   └── *.test.js
+│
+app.js
+sunglasses.js
 ```
 
 ---
 
-# 📖 API Documentation
+## 📖 API Documentation
 
-Interactive Swagger documentation is available at:
+Interactive Swagger documentation, live at:
 
 ```
 GET /api-docs
@@ -224,14 +160,16 @@ GET /api-docs
 
 ---
 
-# 📊 API Overview
+## 📊 API Overview
 
 ### Authentication
 
 ```
-POST /api/register
-POST /api/login
-GET  /api/profile
+POST /api/register                    Register a new account (rate limited)
+GET  /api/verify-email/:token         Verify email via emailed link
+POST /api/resend-verification         Resend the verification email
+POST /api/login                       Log in (rate limited, requires verified email)
+GET  /api/profile                     Get authenticated user's profile
 ```
 
 ### Products
@@ -288,31 +226,45 @@ GET    /api/admin/carts/:id
 
 ---
 
-# 🔒 Security Features
+## 🔒 Security Features
 
-- JWT Authentication
-- Role-Based Authorization
-- Password Hashing using bcrypt
-- Runtime Request Validation using Zod
-- Helmet Security Headers
-- Login & Registration Rate Limiting
-- ObjectId Validation Middleware
-- Protected Routes
-- Centralized Error Handling
+- JWT authentication with mandatory email verification before login
+- Role-based authorization
+- Password hashing (bcrypt)
+- Runtime request validation (Zod)
+- Helmet security headers
+- Rate limiting on authentication endpoints
+- ObjectId validation middleware
+- Centralized error handling
+  > **Note:** CORS is currently configured to allow all origins (`origin: "*"`) for ease of frontend integration during development. This should be restricted to an explicit allowlist before any production use beyond a portfolio context.
 
 ---
 
-# ⚙ Installation
+## 🧪 Testing
+
+This project has an automated test suite built with **Jest** and **Supertest**, running against an isolated **in-memory MongoDB instance** (`mongodb-memory-server`) — no real database connection is touched during tests.
+
+Run the full suite:
+
+```bash
+npm test
+```
+
+Coverage includes:
+
+- User registration (success, duplicate email, invalid data)
+- Email verification and resend-verification flows
+- Login (success, wrong password, unknown user)
+- Authenticated profile access (including rejection when unauthenticated)
+
+---
+
+## ⚙ Installation
 
 Clone the repository
 
 ```bash
 git clone https://github.com/soham-suthar/Sunglasses-Backend.git
-```
-
-Move into the project
-
-```bash
 cd Sunglasses-Backend
 ```
 
@@ -326,58 +278,67 @@ Create a `.env` file
 
 ```env
 PORT=3000
-
 MONGODB_URI=your_mongodb_connection_string
-
 JWT_SECRET=your_secret_key
+BREVO_API_KEY=your_brevo_api_key
 ```
 
-Run the project
+> ⚠️ Confirm the exact Brevo-related variable name(s) against `src/config/` — update this list to match exactly what your code reads.
+
+Run the project (development, with auto-restart)
 
 ```bash
 npm run dev
 ```
 
+Run in production mode
+
+```bash
+npm start
+```
+
+Run tests
+
+```bash
+npm test
+```
+
 ---
 
-# 🌍 Environment Variables
+## 🌍 Environment Variables
 
-| Variable    | Description                        |
-| ----------- | ---------------------------------- |
-| PORT        | Server Port                        |
-| MONGODB_URI | MongoDB Atlas Connection String    |
-| JWT_SECRET  | Secret Key used to sign JWT Tokens |
+| Variable      | Description                                   |
+| ------------- | --------------------------------------------- |
+| PORT          | Server port                                   |
+| MONGODB_URI   | MongoDB Atlas connection string               |
+| JWT_SECRET    | Secret key used to sign JWT tokens            |
+| BREVO_API_KEY | API key for Brevo transactional email service |
 
 ---
 
-# 📈 Future Improvements
+## 📈 Future Improvements
 
-- Razorpay / Stripe Integration
-- Email Verification
-- Forgot Password
-- Refresh Tokens
-- Product Reviews
+- Restrict CORS to a specific origin allowlist
+- Forgot / reset password flow
+- Refresh tokens
+- Product reviews
 - Wishlist
-- Product Image Uploads
-- Docker Support
-- CI/CD Pipeline
-- Automated Testing (Jest + Supertest)
-- MongoDB Transactions for Checkout
+- Product image uploads
+- CI/CD pipeline
+- MongoDB transactions for the checkout flow
+- Docker support
 
 ---
 
-# 👨‍💻 Author
+## 👨‍💻 Author
 
 **Soham Suthar**
 
-GitHub  
-https://github.com/soham-suthar
-
-LinkedIn  
-https://www.linkedin.com/in/soham-suthar/
+GitHub: https://github.com/soham-suthar
+LinkedIn: https://www.linkedin.com/in/soham-suthar/
 
 ---
 
-# 📄 License
+## 📄 License
 
 This project is intended for **educational and portfolio purposes**.

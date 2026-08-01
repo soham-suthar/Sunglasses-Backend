@@ -25,4 +25,7 @@ userRouter
   .route("/api/resend-verification")
   .post(validate(resendVerificationSchema), Page.resendVerificationEmail);
 
+userRouter.route("/api/refresh-token").post(Page.refreshToken);
+userRouter.route("/api/logout").post(Page.logout);
+
 export default userRouter;
