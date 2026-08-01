@@ -3,7 +3,7 @@
  * /api/cart:
  *   get:
  *     tags:
- *       - Shopping Cart
+ *       - Cart
  *     summary: Get authenticated user's cart
  *     description: Returns the authenticated user's shopping cart.
  *     security:
@@ -26,7 +26,7 @@
  * /api/cart:
  *   post:
  *     tags:
- *       - Shopping Cart
+ *       - Cart
  *     summary: Add product to cart
  *     description: Adds a product to the authenticated user's cart.
  *     security:
@@ -55,7 +55,7 @@
  * /api/cart:
  *   delete:
  *     tags:
- *       - Shopping Cart
+ *       - Cart
  *     summary: Clear cart
  *     description: Removes every item from the authenticated user's cart.
  *     security:
@@ -78,7 +78,7 @@
  * /api/cart/{id}:
  *   patch:
  *     tags:
- *       - Shopping Cart
+ *       - Cart
  *     summary: Update cart item quantity
  *     description: Updates the quantity of a product already present in the authenticated user's cart.
  *     security:
@@ -114,7 +114,7 @@
  * /api/cart/{id}:
  *   delete:
  *     tags:
- *       - Shopping Cart
+ *       - Cart
  *     summary: Remove product from cart
  *     description: Removes a single product from the authenticated user's cart.
  *     security:

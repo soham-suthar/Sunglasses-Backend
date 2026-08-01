@@ -7,8 +7,6 @@ import sendEmail from "../util/sendEmail.js";
 const Register = asyncMiddleware(async (req, res) => {
   const { name, password, email } = req.body;
 
-  console.log("REGISTER REQUEST RECEIVED");
-
   // Email Verification
 
   const verificationToken = crypto.randomBytes(32).toString("hex");
