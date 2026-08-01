@@ -2,7 +2,7 @@
 
 A production-inspired **RESTful E-Commerce Backend API** built with **Node.js, Express.js, MongoDB, and JWT Authentication** following the **MVC Architecture**.
 
-This project provides secure authentication with email verification, role-based authorization, product management, shopping cart functionality, order management, invoice generation, a complete admin dashboard, and fully documented REST APIs using **Swagger (OpenAPI)** — backed by an automated Jest/Supertest test suite.
+This project provides secure authentication with email verification, password reset, refresh-token-based sessions, role-based authorization, product management, shopping cart functionality, order management, invoice generation, a complete admin dashboard, and fully documented REST APIs using **Swagger (OpenAPI)** — backed by an automated Jest/Supertest test suite.
 
 ---
 
@@ -34,11 +34,14 @@ https://sungalsses-backend.onrender.com/api-docs
 
 - RESTful API architecture with MVC project structure
 - JWT authentication with **email verification required before login**
+- **Access + refresh token session model**, with httpOnly refresh cookies and token rotation on every refresh
+- **Forgot / reset password flow** with account-enumeration-safe responses
 - Role-based authorization (User / Admin)
 - Secure password hashing (bcrypt)
 - Runtime request validation using Zod
-- Rate limiting on authentication endpoints (register/login)
+- Rate limiting on authentication endpoints (register/login/forgot-password)
 - Helmet security headers
+- CORS restricted to a configured origin allowlist
 - Swagger (OpenAPI) documentation, live and interactive
 - Admin dashboard with aggregation-based analytics
 - Shopping cart system with stock validation
@@ -51,16 +54,20 @@ https://sungalsses-backend.onrender.com/api-docs
 
 ## 📌 Features
 
-### 🔐 Authentication & Email Verification
+### 🔐 Authentication & Sessions
 
 - User registration (email verification required before first login)
 - Email verification via a tokenized link (sent through Brevo)
 - Resend verification email endpoint
-- JWT-based login, issued only after verification
+- JWT-based login: short-lived access token (response body) + long-lived refresh token (httpOnly cookie)
+- Refresh token rotation — every refresh issues a brand-new refresh token and invalidates the previous one
+- Logout endpoint that clears the session both client-side (cookie) and server-side (stored token hash)
+- Forgot password / reset password flow, reusing the same tokenized-email pattern as verification
+- Password reset invalidates any existing refresh token, forcing re-authentication on all sessions
 - Protected routes via JWT middleware
 - Role-based authorization (User/Admin)
 - Password hashing with bcrypt
-- Rate limiting on register/login (100 requests / 15 min window)
+- Rate limiting on register/login/forgot-password (100 requests / 15 min window)
 
 ### 🛍 Products
 
@@ -96,17 +103,17 @@ https://sungalsses-backend.onrender.com/api-docs
 
 ## 🛠 Tech Stack
 
-| Category       | Technologies                           |
-| -------------- | -------------------------------------- |
-| Backend        | Node.js, Express.js                    |
-| Database       | MongoDB, Mongoose                      |
-| Authentication | JWT, bcrypt                            |
-| Validation     | Zod                                    |
-| Email          | Brevo (transactional email API)        |
-| Security       | Helmet, express-rate-limit             |
-| Documentation  | Swagger / OpenAPI                      |
-| Testing        | Jest, Supertest, mongodb-memory-server |
-| Deployment     | Render, MongoDB Atlas                  |
+| Category       | Technologies                              |
+| -------------- | ----------------------------------------- |
+| Backend        | Node.js, Express.js                       |
+| Database       | MongoDB, Mongoose                         |
+| Authentication | JWT (access + refresh), bcrypt            |
+| Validation     | Zod                                       |
+| Email          | Brevo (transactional email API)           |
+| Security       | Helmet, express-rate-limit, cookie-parser |
+| Documentation  | Swagger / OpenAPI                         |
+| Testing        | Jest, Supertest, mongodb-memory-server    |
+| Deployment     | Render, MongoDB Atlas                     |
 
 ---
 
@@ -169,6 +176,10 @@ POST /api/register                    Register a new account (rate limited)
 GET  /api/verify-email/:token         Verify email via emailed link
 POST /api/resend-verification         Resend the verification email
 POST /api/login                       Log in (rate limited, requires verified email)
+POST /api/refresh-token               Issue a new access token via the refresh cookie (rotates the refresh token)
+POST /api/logout                      Clear the session (cookie + stored token hash)
+POST /api/forgot-password             Request a password reset email (rate limited)
+POST /api/reset-password/:token       Set a new password using the emailed reset token
 GET  /api/profile                     Get authenticated user's profile
 ```
 
@@ -229,14 +240,18 @@ GET    /api/admin/carts/:id
 ## 🔒 Security Features
 
 - JWT authentication with mandatory email verification before login
+- Access + refresh token model — short-lived access tokens, httpOnly refresh cookies, full rotation on every refresh
+- Refresh tokens hashed (SHA-256) at rest, never stored in plaintext
+- Forgot-password flow never reveals whether an email is registered (prevents account enumeration)
+- Password reset invalidates any existing session/refresh token on the account
 - Role-based authorization
 - Password hashing (bcrypt)
 - Runtime request validation (Zod)
 - Helmet security headers
+- CORS restricted to a configured origin (`CLIENT_URL`), with credentials support for the refresh-token cookie
 - Rate limiting on authentication endpoints
 - ObjectId validation middleware
 - Centralized error handling
-  > **Note:** CORS is currently configured to allow all origins (`origin: "*"`) for ease of frontend integration during development. This should be restricted to an explicit allowlist before any production use beyond a portfolio context.
 
 ---
 
@@ -250,12 +265,18 @@ Run the full suite:
 npm test
 ```
 
-Coverage includes:
+**34 tests, all passing**, covering:
 
 - User registration (success, duplicate email, invalid data)
 - Email verification and resend-verification flows
 - Login (success, wrong password, unknown user)
 - Authenticated profile access (including rejection when unauthenticated)
+- Refresh token issuance, rotation, and rejection of reused/invalid/missing tokens — both at the HTTP layer and as an isolated model-level unit test
+- Logout (cookie clearing + server-side session invalidation)
+- Forgot password (generic response regardless of whether the email exists, validation)
+- Reset password (success, expired/invalid token, session invalidation on reset, weak password rejection)
+- Product listing and filtering
+- Cart and order flows
 
 ---
 
@@ -279,11 +300,13 @@ Create a `.env` file
 ```env
 PORT=3000
 MONGODB_URI=your_mongodb_connection_string
-JWT_SECRET=your_secret_key
+JWT_SECRET_KEY=your_access_token_secret
+JWT_REFRESH_SECRET_KEY=your_refresh_token_secret
+ACCESS_TOKEN_EXPIRY=15m
+REFRESH_TOKEN_EXPIRY=7d
 BREVO_API_KEY=your_brevo_api_key
+CLIENT_URL=http://localhost:3000
 ```
-
-> ⚠️ Confirm the exact Brevo-related variable name(s) against `src/config/` — update this list to match exactly what your code reads.
 
 Run the project (development, with auto-restart)
 
@@ -307,25 +330,27 @@ npm test
 
 ## 🌍 Environment Variables
 
-| Variable      | Description                                   |
-| ------------- | --------------------------------------------- |
-| PORT          | Server port                                   |
-| MONGODB_URI   | MongoDB Atlas connection string               |
-| JWT_SECRET    | Secret key used to sign JWT tokens            |
-| BREVO_API_KEY | API key for Brevo transactional email service |
+| Variable               | Description                                                                         |
+| ---------------------- | ----------------------------------------------------------------------------------- |
+| PORT                   | Server port                                                                         |
+| MONGODB_URI            | MongoDB Atlas connection string                                                     |
+| JWT_SECRET_KEY         | Secret key used to sign access tokens                                               |
+| JWT_REFRESH_SECRET_KEY | Secret key used to sign refresh tokens (kept separate from the access token secret) |
+| ACCESS_TOKEN_EXPIRY    | Access token lifetime (default: `15m`)                                              |
+| REFRESH_TOKEN_EXPIRY   | Refresh token lifetime (default: `7d`)                                              |
+| BREVO_API_KEY          | API key for Brevo transactional email service                                       |
+| CLIENT_URL             | Base URL used for verification/reset email links, and as the allowed CORS origin    |
 
 ---
 
 ## 📈 Future Improvements
 
-- Restrict CORS to a specific origin allowlist
-- Forgot / reset password flow
-- Refresh tokens
+- Razorpay payment integration
+- MongoDB transactions for the checkout flow
 - Product reviews
 - Wishlist
 - Product image uploads
 - CI/CD pipeline
-- MongoDB transactions for the checkout flow
 - Docker support
 
 ---
