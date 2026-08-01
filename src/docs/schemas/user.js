@@ -51,6 +51,25 @@ const UserSchema = {
       },
     },
   },
+  RefreshTokenResponse: {
+    type: "object",
+    properties: {
+      token: {
+        type: "string",
+        example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+      },
+    },
+  },
+
+  LogoutResponse: {
+    type: "object",
+    properties: {
+      message: {
+        type: "string",
+        example: "Logged out successfully",
+      },
+    },
+  },
 };
 
 export default UserSchema;
