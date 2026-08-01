@@ -55,8 +55,6 @@ describe("Products", () => {
 
     const response = await request(app).get("/api/products");
 
-    console.log(response.body);
-
     expect(response.statusCode).toBe(200);
 
     expect(response.body).toBeDefined();
@@ -89,8 +87,6 @@ test("should filter products by color", async () => {
 
   const response = await request(app).get("/api/products?color=Black");
 
-  console.log(response.body);
-
   expect(response.statusCode).toBe(200);
 });
 
@@ -117,9 +113,6 @@ test("should return all available colors", async () => {
   ]);
 
   const response = await request(app).get("/api/colors");
-
-  console.log(response.body);
-
   expect(response.statusCode).toBe(200);
 });
 

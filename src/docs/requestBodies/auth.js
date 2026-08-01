@@ -56,6 +56,44 @@ const AuthRequestBodies = {
       },
     },
   },
+
+  ForgotPasswordRequest: {
+    required: true,
+    content: {
+      "application/json": {
+        schema: {
+          type: "object",
+          required: ["email"],
+          properties: {
+            email: {
+              type: "string",
+              format: "email",
+              example: "soham@gmail.com",
+            },
+          },
+        },
+      },
+    },
+  },
+
+  ResetPasswordRequest: {
+    required: true,
+    content: {
+      "application/json": {
+        schema: {
+          type: "object",
+          required: ["password"],
+          properties: {
+            password: {
+              type: "string",
+              minLength: 7,
+              example: "NewPassword123",
+            },
+          },
+        },
+      },
+    },
+  },
 };
 
 export default AuthRequestBodies;

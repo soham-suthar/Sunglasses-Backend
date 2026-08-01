@@ -5,6 +5,8 @@ import {
   registerSchema,
   loginSchema,
   resendVerificationSchema,
+  forgotPasswordSchema,
+  resetPasswordSchema,
 } from "../validation/validation.js";
 import authMiddleware from "../middleware/auth-middleware.js";
 import authLimiter from "../middleware/rate-limiting.js";
@@ -27,5 +29,13 @@ userRouter
 
 userRouter.route("/api/refresh-token").post(Page.refreshToken);
 userRouter.route("/api/logout").post(Page.logout);
+
+userRouter
+  .route("/api/forgot-password")
+  .post(authLimiter, validate(forgotPasswordSchema), Page.forgotPassword);
+
+userRouter
+  .route("/api/reset-password/:token")
+  .post(validate(resetPasswordSchema), Page.resetPassword);
 
 export default userRouter;

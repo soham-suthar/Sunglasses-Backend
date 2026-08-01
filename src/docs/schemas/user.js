@@ -70,6 +70,28 @@ const UserSchema = {
       },
     },
   },
+
+  ForgotPasswordResponse: {
+    type: "object",
+    properties: {
+      message: {
+        type: "string",
+        example:
+          "If an account with that email exists, a password reset link has been sent.",
+      },
+    },
+  },
+
+  ResetPasswordResponse: {
+    type: "object",
+    properties: {
+      message: {
+        type: "string",
+        example:
+          "Password reset successful. Please log in with your new password.",
+      },
+    },
+  },
 };
 
 export default UserSchema;

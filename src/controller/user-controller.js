@@ -105,7 +105,6 @@ const Login = asyncMiddleware(async (req, res) => {
   const accessToken = UserExist.generateAccessToken();
   const newRefreshToken = UserExist.generateRefreshToken();
   await UserExist.setRefreshToken(newRefreshToken);
-  console.log("Token generated");
 
   res.cookie("refreshToken", newRefreshToken, COOKIE_OPTIONS);
 
@@ -214,7 +213,13 @@ const refreshToken = asyncMiddleware(async (req, res) => {
 
   const user = await User.findById(decoded.userId);
 
-  if (!user || !(await user.compareRefreshToken(token))) {
+  if (!user) {
+    return res.status(401).json({ message: "Invalid refresh token" });
+  }
+
+  const matches = await user.compareRefreshToken(token);
+
+  if (!matches) {
     return res.status(401).json({ message: "Invalid refresh token" });
   }
 
@@ -243,6 +248,95 @@ const logout = asyncMiddleware(async (req, res) => {
   return res.status(200).json({ message: "Logged out successfully" });
 });
 
+const forgotPassword = asyncMiddleware(async (req, res) => {
+  const { email } = req.body;
+
+  const user = await User.findOne({ email: email.toLowerCase() });
+
+  // Always return the same response, whether or not the email exists —
+  // prevents attackers from using this endpoint to discover valid accounts.
+  const genericResponse = {
+    message:
+      "If an account with that email exists, a password reset link has been sent.",
+  };
+
+  if (!user) {
+    return res.status(200).json(genericResponse);
+  }
+
+  const resetToken = crypto.randomBytes(32).toString("hex");
+
+  user.passwordResetToken = crypto
+    .createHash("sha256")
+    .update(resetToken)
+    .digest("hex");
+
+  user.passwordResetExpires = Date.now() + 10 * 60 * 1000;
+
+  await user.save();
+
+  const resetURL = `${process.env.CLIENT_URL}/api/reset-password/${resetToken}`;
+
+  await sendEmail({
+    to: user.email,
+    subject: "Reset your password",
+    html: `
+      <h2>Password Reset Request</h2>
+      <p>Click the button below to reset your password. This link expires in 10 minutes.</p>
+      
+        href="${resetURL}"
+        style="
+          background:#000;
+          color:#fff;
+          padding:12px 20px;
+          text-decoration:none;
+          border-radius:6px;
+          display:inline-block;
+        "
+      >
+        Reset Password
+      </a>
+      <p>If you didn't request this, you can safely ignore this email.</p>
+    `,
+  });
+
+  return res.status(200).json(genericResponse);
+});
+
+const resetPassword = asyncMiddleware(async (req, res) => {
+  const { token } = req.params;
+  const { password } = req.body;
+
+  const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
+
+  const user = await User.findOne({
+    passwordResetToken: hashedToken,
+    passwordResetExpires: { $gt: Date.now() },
+  });
+
+  if (!user) {
+    return res.status(400).json({
+      message: "Invalid or expired password reset link",
+    });
+  }
+
+  const saltRound = await bcrypt.genSalt(10);
+  user.password = await bcrypt.hash(password, saltRound);
+
+  user.passwordResetToken = undefined;
+  user.passwordResetExpires = undefined;
+
+  // Invalidate any existing session — if the password was compromised,
+  // a previously-issued refresh token shouldn't remain valid.
+  user.refreshTokenHash = null;
+
+  await user.save();
+
+  return res.status(200).json({
+    message: "Password reset successful. Please log in with your new password.",
+  });
+});
+
 const redirect = asyncMiddleware(async (req, res) => {
   res.json({ message: "Sunglasses API — see /api-docs for documentation" });
 });
@@ -256,4 +350,6 @@ export {
   resendVerificationEmail,
   refreshToken,
   logout,
+  resetPassword,
+  forgotPassword,
 };

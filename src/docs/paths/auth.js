@@ -139,3 +139,68 @@
  *       500:
  *         $ref: "#/components/responses/InternalServerError"
  */
+
+/**
+ * @openapi
+ * /api/forgot-password:
+ *   post:
+ *     tags:
+ *       - Authentication
+ *     operationId: forgotPassword
+ *     summary: Request a password reset
+ *     description: Sends a password reset link to the provided email if an account exists. Always returns a generic success message, regardless of whether the email is registered, to prevent account enumeration.
+ *     security: []
+ *     requestBody:
+ *       $ref: "#/components/requestBodies/ForgotPasswordRequest"
+ *     responses:
+ *       200:
+ *         description: Generic confirmation message
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: "#/components/schemas/ForgotPasswordResponse"
+ *       400:
+ *         $ref: "#/components/responses/BadRequest"
+ *       500:
+ *         $ref: "#/components/responses/InternalServerError"
+ */
+
+/**
+ * @openapi
+ * /api/reset-password/{token}:
+ *   post:
+ *     tags:
+ *       - Authentication
+ *     operationId: resetPassword
+ *     summary: Reset password using a reset token
+ *     description: Sets a new password using the token emailed via the forgot-password flow. Invalidates any existing refresh token on the account.
+ *     security: []
+ *     parameters:
+ *       - name: token
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The password reset token from the emailed link
+ *     requestBody:
+ *       $ref: "#/components/requestBodies/ResetPasswordRequest"
+ *     responses:
+ *       200:
+ *         description: Password reset successful
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: "#/components/schemas/ResetPasswordResponse"
+ *       400:
+ *         description: Invalid or expired reset token, or validation error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Invalid or expired password reset link
+ *       500:
+ *         $ref: "#/components/responses/InternalServerError"
+ */

@@ -42,6 +42,14 @@ const UserSchema = new mongoose.Schema(
       type: Date,
     },
 
+    passwordResetToken: {
+      type: String,
+    },
+
+    passwordResetExpires: {
+      type: Date,
+    },
+
     refreshTokenHash: {
       type: String,
       default: null,
@@ -66,10 +74,13 @@ UserSchema.methods.generateAccessToken = function () {
   );
 };
 
+import crypto from "crypto"; // add this import at the top
+
 UserSchema.methods.generateRefreshToken = function () {
   return jwt.sign(
     {
       userId: this._id,
+      jti: crypto.randomUUID(),
     },
     process.env.JWT_REFRESH_SECRET_KEY,
     {
@@ -79,13 +90,17 @@ UserSchema.methods.generateRefreshToken = function () {
 };
 
 UserSchema.methods.setRefreshToken = async function (token) {
-  this.refreshTokenHash = await bcrypt.hash(token, 10);
+  this.refreshTokenHash = crypto
+    .createHash("sha256")
+    .update(token)
+    .digest("hex");
   await this.save();
 };
 
-UserSchema.methods.compareRefreshToken = async function (token) {
+UserSchema.methods.compareRefreshToken = function (token) {
   if (!this.refreshTokenHash) return false;
-  return bcrypt.compare(token, this.refreshTokenHash);
+  const incomingHash = crypto.createHash("sha256").update(token).digest("hex");
+  return incomingHash === this.refreshTokenHash;
 };
 
 const User = mongoose.model("User", UserSchema);
