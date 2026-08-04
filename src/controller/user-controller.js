@@ -239,9 +239,7 @@ const logout = asyncMiddleware(async (req, res) => {
     try {
       const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET_KEY);
       await User.findByIdAndUpdate(decoded.userId, { refreshTokenHash: null });
-    } catch {
-      // token already invalid/expired — nothing to clean up
-    }
+    } catch {}
   }
 
   res.clearCookie("refreshToken", COOKIE_OPTIONS);
@@ -253,8 +251,6 @@ const forgotPassword = asyncMiddleware(async (req, res) => {
 
   const user = await User.findOne({ email: email.toLowerCase() });
 
-  // Always return the same response, whether or not the email exists —
-  // prevents attackers from using this endpoint to discover valid accounts.
   const genericResponse = {
     message:
       "If an account with that email exists, a password reset link has been sent.",

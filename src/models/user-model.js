@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import jwt from "jsonwebtoken";
-import bcrypt from "bcrypt";
+import crypto from "crypto";
 
 const UserSchema = new mongoose.Schema(
   {
@@ -73,8 +73,6 @@ UserSchema.methods.generateAccessToken = function () {
     },
   );
 };
-
-import crypto from "crypto"; // add this import at the top
 
 UserSchema.methods.generateRefreshToken = function () {
   return jwt.sign(
